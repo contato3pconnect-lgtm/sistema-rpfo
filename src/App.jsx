@@ -734,16 +734,14 @@ export default function App() {
   const lidarComLogin = (e) => {
     e.preventDefault();
     if (!email || !senha) {
-      setErroLogin('Por favor, informe seu usuário (nome.sobrenome) e senha.');
+      setErroLogin('Por favor, informe seu usuário e senha.');
       return;
     }
 
     const usuarioFormatado = email.trim().toLowerCase();
     const partesNome = usuarioFormatado.split('.').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
 
-    // Se estiver tentando acessar pela Área do Administrador
     if (modoLoginAdmin) {
-      // Validação da Chave Master do Admin
       if (senha !== 'admin123' && senha !== '123456') {
         setErroLogin('Chave de segurança administrativa inválida.');
         return;
@@ -752,15 +750,38 @@ export default function App() {
       setUsuario({
         email: usuarioFormatado,
         nome: partesNome || 'Administrador',
-        perfil: 'admin'
+        perfil: 'admin',
+        nivelPermissao: 'editar',
+        modulosPermitidos: ['calendario', 'revisoes', 'refs'],
+        rpfosPermitidas: 'todas'
       });
     } else {
-      // Qualquer login feito na tela principal visível entra como usuário comum
-      setUsuario({
-        email: usuarioFormatado,
-        nome: partesNome || usuarioFormatado,
-        perfil: 'usuario'
-      });
+      const usuarioCadastrado = listaUsuariosAcesso.find(u => u.usuario.toLowerCase() === usuarioFormatado);
+
+      if (usuarioCadastrado) {
+        if (usuarioCadastrado.senha && usuarioCadastrado.senha !== senha) {
+          setErroLogin('Senha incorreta para este usuário.');
+          return;
+        }
+
+        setUsuario({
+          email: usuarioFormatado,
+          nome: usuarioCadastrado.nome,
+          perfil: 'usuario',
+          nivelPermissao: usuarioCadastrado.nivelPermissao || 'visualizar',
+          modulosPermitidos: usuarioCadastrado.modulosPermitidos || ['calendario', 'revisoes', 'refs'],
+          rpfosPermitidas: usuarioCadastrado.rpfosPermitidas || 'todas'
+        });
+      } else {
+        setUsuario({
+          email: usuarioFormatado,
+          nome: partesNome || usuarioFormatado,
+          perfil: 'usuario',
+          nivelPermissao: 'visualizar',
+          modulosPermitidos: ['calendario', 'revisoes', 'refs'],
+          rpfosPermitidas: 'todas'
+        });
+      }
     }
 
     setErroLogin('');
