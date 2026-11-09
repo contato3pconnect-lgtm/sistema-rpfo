@@ -3293,7 +3293,7 @@ export default function App() {
               className="bg-[#84cc16] hover:bg-[#72b412] text-black py-2.5 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-[#84cc16]/10 cursor-pointer"
             >
               <Plus size={16} />
-              + Nova Revisão (RPFO)
+              Nova Revisão (RPFO)
             </button>
             <button
               onClick={fazerLogout}
@@ -4793,3 +4793,85 @@ export default function App() {
     </div>
   );
 }
+{/* MODAL CADASTRAR NOVA RPFO */}
+        {modalNovaRevisao && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 z-[9999] animate-in fade-in duration-150">
+            <div className="bg-[#1c2936] border border-gray-700 w-full max-w-lg rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-6 pb-3 border-b border-gray-700/60">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-[#84cc16]/20 text-[#84cc16] flex items-center justify-center">
+                    <Plus size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Cadastrar Nova RPFO</h3>
+                    <p className="text-xs text-gray-400">Insira os dados orçamentários do trecho</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setModalNovaRevisao(false)}
+                  className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-700/50 transition cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={salvarNovaRevisao} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+                    Identificação da Obra / Trecho
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: BR-230/PA ou BR-101/SC"
+                    value={formNovaRpfo.br}
+                    onChange={(e) => setFormNovaRpfo({ ...formNovaRpfo, br: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-[#15202b] border border-gray-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#84cc16]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 mb-1.5">Preço Inicial (PI)</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ex: 350.000.000,00"
+                      value={formNovaRpfo.precoInicial}
+                      onChange={(e) => setFormNovaRpfo({ ...formNovaRpfo, precoInicial: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-[#15202b] border border-gray-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#84cc16]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 mb-1.5">PI + RPFO Final</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ex: 375.000.000,00"
+                      value={formNovaRpfo.precoFinal}
+                      onChange={(e) => setFormNovaRpfo({ ...formNovaRpfo, precoFinal: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-[#15202b] border border-gray-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#84cc16]"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-3 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setModalNovaRevisao(false)}
+                    className="flex-1 py-2.5 rounded-xl bg-gray-700/60 hover:bg-gray-700 text-gray-300 text-sm font-medium transition cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2.5 rounded-xl bg-[#84cc16] hover:bg-[#72b412] text-black text-sm font-bold transition shadow cursor-pointer"
+                  >
+                    Salvar RPFO
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
