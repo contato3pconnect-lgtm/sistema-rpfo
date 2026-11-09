@@ -734,13 +734,15 @@ export default function App() {
   const lidarComLogin = (e) => {
     e.preventDefault();
     if (!email || !senha) {
-      setErroLogin('Por favor, informe seu usuário e senha.');
+      setErroLogin('Por favor, informe seu usuário (nome.sobrenome) e senha.');
       return;
     }
 
     const usuarioFormatado = email.trim().toLowerCase();
 
+    // Se estiver tentando acessar pela Área do Administrador
     if (modoLoginAdmin) {
+      // Validação da Chave Master do Admin
       if (senha !== 'admin123' && senha !== '123456') {
         setErroLogin('Chave de segurança administrativa inválida.');
         return;
@@ -748,6 +750,7 @@ export default function App() {
 
       setUsuario({
         email: usuarioFormatado,
+<<<<<<< HEAD
         nome: 'Administrador',
         perfil: 'admin',
         nivelPermissao: 'editar',
@@ -774,6 +777,17 @@ export default function App() {
         nivelPermissao: usuarioCadastrado.nivelPermissao || 'visualizar',
         modulosPermitidos: usuarioCadastrado.modulosPermitidos || ['calendario', 'revisoes', 'refs'],
         rpfosPermitidas: usuarioCadastrado.rpfosPermitidas || 'todas'
+=======
+        nome: partesNome || 'Administrador',
+        perfil: 'admin'
+      });
+    } else {
+      // Qualquer login feito na tela principal visível entra como usuário comum
+      setUsuario({
+        email: usuarioFormatado,
+        nome: partesNome || usuarioFormatado,
+        perfil: 'usuario'
+>>>>>>> parent of 61dc4a9 (Primeira versão do sistema RPFO)
       });
     }
 
