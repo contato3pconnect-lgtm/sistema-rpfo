@@ -404,7 +404,7 @@ const DADOS_REVISOES_INICIAIS = [
 
 export default function App() {
   const [usuario, setUsuario] = useState(null);
-  const podeEditar = usuario?.perfil === 'admin' || usuario?.nivelPermissao === 'editar';
+  const podeEditar = usuario?.perfil === 'admin' || (usuario?.perfil === 'usuario' && usuario?.nivelPermissao === 'editar');
   const [telaAtiva, setTelaAtiva] = useState('hub');
 
   // Autenticação com nome.sobrenome
@@ -739,7 +739,6 @@ export default function App() {
     }
 
     const usuarioFormatado = email.trim().toLowerCase();
-    const partesNome = usuarioFormatado.split('.').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
 
     if (modoLoginAdmin) {
       if (senha !== 'admin123' && senha !== '123456') {
@@ -749,7 +748,7 @@ export default function App() {
 
       setUsuario({
         email: usuarioFormatado,
-        nome: partesNome || 'Administrador',
+        nome: 'Administrador',
         perfil: 'admin',
         nivelPermissao: 'editar',
         modulosPermitidos: ['calendario', 'revisoes', 'refs'],
@@ -758,30 +757,24 @@ export default function App() {
     } else {
       const usuarioCadastrado = listaUsuariosAcesso.find(u => u.usuario.toLowerCase() === usuarioFormatado);
 
-      if (usuarioCadastrado) {
-        if (usuarioCadastrado.senha && usuarioCadastrado.senha !== senha) {
-          setErroLogin('Senha incorreta para este usuário.');
-          return;
-        }
-
-        setUsuario({
-          email: usuarioFormatado,
-          nome: usuarioCadastrado.nome,
-          perfil: 'usuario',
-          nivelPermissao: usuarioCadastrado.nivelPermissao || 'visualizar',
-          modulosPermitidos: usuarioCadastrado.modulosPermitidos || ['calendario', 'revisoes', 'refs'],
-          rpfosPermitidas: usuarioCadastrado.rpfosPermitidas || 'todas'
-        });
-      } else {
-        setUsuario({
-          email: usuarioFormatado,
-          nome: partesNome || usuarioFormatado,
-          perfil: 'usuario',
-          nivelPermissao: 'visualizar',
-          modulosPermitidos: ['calendario', 'revisoes', 'refs'],
-          rpfosPermitidas: 'todas'
-        });
+      if (!usuarioCadastrado) {
+        setErroLogin('Usuário não encontrado no sistema.');
+        return;
       }
+
+      if (usuarioCadastrado.senha && usuarioCadastrado.senha !== senha) {
+        setErroLogin('Senha incorreta.');
+        return;
+      }
+
+      setUsuario({
+        email: usuarioFormatado,
+        nome: usuarioCadastrado.nome,
+        perfil: 'usuario',
+        nivelPermissao: usuarioCadastrado.nivelPermissao || 'visualizar',
+        modulosPermitidos: usuarioCadastrado.modulosPermitidos || ['calendario', 'revisoes', 'refs'],
+        rpfosPermitidas: usuarioCadastrado.rpfosPermitidas || 'todas'
+      });
     }
 
     setErroLogin('');
@@ -1202,12 +1195,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {modoLoginAdmin && (
-                  <div className="text-[11px] text-gray-400 bg-[#121c27] p-2.5 rounded-lg border border-emerald-500/30">
-                    <span className="text-emerald-400 font-semibold">Credencial Admin Master:</span><br />
-                    Senha: <strong>admin123</strong> ou <strong>123456</strong>
-                  </div>
-                )}
+                
 
                 <button
                   type="submit"
@@ -1441,29 +1429,33 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setModalNovaRevisao(true)}
-              className="bg-[#84cc16] hover:bg-[#72b412] text-black py-2 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg cursor-pointer"
-            >
-              <Plus size={15} />
-              <span>Nova RPFO</span>
-            </button>
+            {podeEditar && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setModalNovaRevisao(true)}
+                  className="bg-[#84cc16] hover:bg-[#72b412] text-black py-2 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg cursor-pointer"
+                >
+                  <Plus size={15} />
+                  <span>Nova RPFO</span>
+                </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setNovoTitulo('');
-                setNovoProcessoSei('');
-                setNovoDescricao('');
-                if (filtroRpfoAtivo) setNovoRpfo(filtroRpfoAtivo);
-                setModalNovoEvento(true);
-              }}
-              className="bg-[#5390f5] hover:bg-[#437de0] text-white py-2 px-3.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-lg cursor-pointer"
-            >
-              <Plus size={15} />
-              <span>Adicionar Acontecimento</span>
-            </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNovoTitulo('');
+                    setNovoProcessoSei('');
+                    setNovoDescricao('');
+                    if (filtroRpfoAtivo) setNovoRpfo(filtroRpfoAtivo);
+                    setModalNovoEvento(true);
+                  }}
+                  className="bg-[#5390f5] hover:bg-[#437de0] text-white py-2 px-3.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-lg cursor-pointer"
+                >
+                  <Plus size={15} />
+                  <span>Adicionar Acontecimento</span>
+                </button>
+              </>
+            )}
             <button
               onClick={fazerLogout}
               className="p-2 bg-[#1c2936] hover:bg-red-950/40 border border-gray-700 rounded-xl text-gray-300 hover:text-red-400 transition cursor-pointer"
@@ -1811,168 +1803,7 @@ export default function App() {
         </div>
 
         {/* MODAL CADASTRAR NOVA RPFO NO CALENDÁRIO */}
-        {modalNovaRevisao && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 z-[9999] animate-in fade-in duration-150">
-            <div className="bg-[#1c2936] border border-gray-700 w-full max-w-lg rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-6 pb-3 border-b border-gray-700/60">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-[#84cc16]/20 text-[#84cc16] flex items-center justify-center">
-                    <Plus size={18} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white">Cadastrar Nova RPFO</h3>
-                    <p className="text-xs text-gray-400">Insira os dados orçamentários do trecho</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setModalNovaRevisao(false)}
-                  className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-700/50 transition cursor-pointer"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              <form onSubmit={salvarNovaRevisao} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">
-                    Tipo de Modal / Obra
-                  </label>
-                  <div className="grid grid-cols-3 gap-2 p-1 bg-[#15202b] rounded-xl border border-gray-700">
-                    {[
-                      { id: 'Rodovia', label: 'Rodovia' },
-                      { id: 'Hidrovia', label: 'Hidrovia' },
-                      { id: 'Ferrovia', label: 'Ferrovia' }
-                    ].map((mod) => {
-                      const ativa = (formNovaRpfo.modalidade || 'Rodovia') === mod.id;
-                      return (
-                        <button
-                          key={mod.id}
-                          type="button"
-                          onClick={() => setFormNovaRpfo({ ...formNovaRpfo, modalidade: mod.id })}
-                          className={`py-2 rounded-lg text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                            ativa
-                              ? mod.id === 'Rodovia' ? 'bg-[#84cc16] text-black shadow-md'
-                              : mod.id === 'Hidrovia' ? 'bg-cyan-500 text-black shadow-md'
-                              : 'bg-amber-500 text-black shadow-md'
-                              : 'text-gray-400 hover:text-white hover:bg-gray-800/40'
-                          }`}
-                        >
-                          {ativa && <Check size={12} strokeWidth={3} />}
-                          {mod.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">
-                    Identificação da Obra / Trecho
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder={
-                      formNovaRpfo.modalidade === 'Hidrovia' ? "Ex: Hidro - 720/ITA" :
-                      formNovaRpfo.modalidade === 'Ferrovia' ? "Ex: Ferrovia Norte-Sul ou EF-170" :
-                      "Ex: BR-230/PA ou BR-101/SC"
-                    }
-                    value={formNovaRpfo.br}
-                    onChange={(e) => setFormNovaRpfo({ ...formNovaRpfo, br: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-[#15202b] border border-gray-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#84cc16]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1.5">Preço Inicial (PI)</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ex: 350.000.000,00"
-                      value={formNovaRpfo.precoInicial}
-                      onChange={(e) => setFormNovaRpfo({ ...formNovaRpfo, precoInicial: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-[#15202b] border border-gray-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#84cc16]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1.5">PI + RPFO Final</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ex: 375.000.000,00"
-                      value={formNovaRpfo.precoFinal}
-                      onChange={(e) => setFormNovaRpfo({ ...formNovaRpfo, precoFinal: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-[#15202b] border border-gray-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#84cc16]"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1.5">Empresa Contratada</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ex: CLC, COESA"
-                      value={formNovaRpfo.contratada}
-                      onChange={(e) => setFormNovaRpfo({ ...formNovaRpfo, contratada: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-[#15202b] border border-gray-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#84cc16]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1.5">Contrato nº</label>
-                    <input
-                      type="text"
-                      placeholder="Ex: 05 00287/2025"
-                      value={formNovaRpfo.contrato}
-                      onChange={(e) => setFormNovaRpfo({ ...formNovaRpfo, contrato: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-[#15202b] border border-gray-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#84cc16]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1.5">Processo SEI</label>
-                    <input
-                      type="text"
-                      placeholder="Ex: 50605.001211/2026-76"
-                      value={formNovaRpfo.processoSei}
-                      onChange={(e) => setFormNovaRpfo({ ...formNovaRpfo, processoSei: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-[#15202b] border border-gray-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#84cc16]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">Link do Google Drive (Opcional)</label>
-                  <input
-                    type="url"
-                    placeholder="https://drive.google.com/..."
-                    value={formNovaRpfo.linkDrive || ''}
-                    onChange={(e) => setFormNovaRpfo({ ...formNovaRpfo, linkDrive: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-[#15202b] border border-gray-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#5390f5]"
-                  />
-                </div>
-
-                <div className="pt-3 flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setModalNovaRevisao(false)}
-                    className="flex-1 py-2.5 rounded-xl bg-gray-700/60 hover:bg-gray-700 text-gray-300 text-sm font-medium transition cursor-pointer"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-2.5 rounded-xl bg-[#84cc16] hover:bg-[#72b412] text-black text-sm font-bold transition shadow cursor-pointer"
-                  >
-                    Salvar RPFO
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+        
 
         {/* MODAL ADICIONAR NOVO ACONTECIMENTO */}
         {modalNovoEvento && (
@@ -2497,10 +2328,13 @@ export default function App() {
                         )}
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => alternarStatusEtapa(obra.id, idx)}
-                        className={`w-9 h-9 rounded-full flex items-center justify-center font-bold transition-all transform hover:scale-110 active:scale-95 cursor-pointer shadow-lg ${
+                      <div
+                        onClick={() => {
+                          if (podeEditar) alternarStatusEtapa(obra.id, idx);
+                        }}
+                        className={`w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-lg ${
+                          podeEditar ? 'transition-all transform hover:scale-110 active:scale-95 cursor-pointer' : 'cursor-not-allowed opacity-90'
+                        } ${
                           etapa.status === 'concluido'
                             ? 'bg-[#84cc16] text-black shadow-[#84cc16]/30'
                             : etapa.status === 'andamento'
@@ -2509,7 +2343,7 @@ export default function App() {
                             ? 'bg-white text-gray-900 border-2 border-gray-300 shadow-white/20'
                             : 'bg-red-600 text-white shadow-red-600/30'
                         }`}
-                        title="Clique para alternar: Não iniciado -> Em andamento -> Concluído -> S/ supervisora"
+                        title={podeEditar ? "Clique para alternar o status" : "Acesso apenas para visualização"}
                       >
                         {etapa.status === 'concluido' ? (
                           <Check size={18} strokeWidth={3} />
@@ -2520,7 +2354,7 @@ export default function App() {
                         ) : (
                           <Clock size={17} />
                         )}
-                      </button>
+                      </div>
 
                       <input
                         type="text"
@@ -3229,6 +3063,7 @@ export default function App() {
 
   // 5. DASHBOARD PRINCIPAL DE REVISÕES
   if (telaAtiva === 'revisoes') {
+    
     const parseMoeda = (val) => {
       if (!val) return 0;
       const num = parseFloat(val.toString().replace(/\./g, '').replace(',', '.').replace(/[^\d.-]/g, ''));
@@ -3287,14 +3122,16 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setModalNovaRevisao(true)}
-              className="bg-[#84cc16] hover:bg-[#72b412] text-black py-2.5 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-[#84cc16]/10 cursor-pointer"
-            >
-              <Plus size={16} />
-              + Nova Revisão (RPFO)
-            </button>
+            {podeEditar && (
+              <button
+                type="button"
+                onClick={() => setModalNovaRevisao(true)}
+                className="bg-[#84cc16] hover:bg-[#72b412] text-black py-2.5 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-[#84cc16]/10 cursor-pointer"
+              >
+                <Plus size={16} />
+                + Nova Revisão (RPFO)
+              </button>
+            )}
             <button
               onClick={fazerLogout}
               className="p-2 bg-[#16212e] hover:bg-red-950/40 border border-gray-700 rounded-xl text-gray-300 hover:text-red-400 transition cursor-pointer"
@@ -3693,7 +3530,6 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center gap-3 self-end lg:self-center">
-                        {/* BOTÕES DE EDIÇÃO SÓ APARECEM SE TIVER PERMISSÃO DE EDIÇÃO */}
                         {podeEditar && (
                           <div className="flex items-center gap-1 bg-[#131c26] p-1 rounded-xl border border-gray-700/60" onClick={(e) => e.stopPropagation()}>
                             <button
@@ -3837,11 +3673,14 @@ export default function App() {
 
                                   <button
                                     type="button"
+                                    disabled={!podeEditar}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      alternarStatusEtapa(rev.id, idx);
+                                      if (podeEditar) alternarStatusEtapa(rev.id, idx);
                                     }}
-                                    className={`w-9 h-9 rounded-full flex items-center justify-center font-bold transition-all transform hover:scale-110 active:scale-95 cursor-pointer shadow-lg ${
+                                    className={`w-9 h-9 rounded-full flex items-center justify-center font-bold transition-all shadow-lg ${
+                                      podeEditar ? 'cursor-pointer hover:scale-110 active:scale-95' : 'cursor-not-allowed opacity-90'
+                                    } ${
                                       etapa.status === 'concluido'
                                         ? 'bg-[#84cc16] text-black shadow-[#84cc16]/30'
                                         : etapa.status === 'andamento'
@@ -3850,7 +3689,7 @@ export default function App() {
                                         ? 'bg-white text-gray-900 border-2 border-gray-300 shadow-white/20'
                                         : 'bg-red-600 text-white shadow-red-600/30'
                                     }`}
-                                    title="Clique para alternar: Não iniciado -> Em andamento -> Concluído -> S/ supervisora"
+                                    title={podeEditar ? "Clique para alternar o status" : "Acesso apenas para visualização"}
                                   >
                                     {etapa.status === 'concluido' ? (
                                       <Check size={18} strokeWidth={3} />
@@ -4114,9 +3953,7 @@ export default function App() {
             </div>
           </div>
         )}
-
-        {/* MODAL EXCLUIR REVISÃO */}
-        {/* MODAL CADASTRAR NOVA RPFO NO DASHBOARD */}
+{/* MODAL CADASTRAR NOVA RPFO NO DASHBOARD */}
         {modalNovaRevisao && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 z-[9999] animate-in fade-in duration-150">
             <div className="bg-[#1c2936] border border-gray-700 w-full max-w-lg rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
