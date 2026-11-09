@@ -363,7 +363,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-[#111922] flex items-center justify-center p-4 font-sans">
         <div className="w-full max-w-md bg-[#1c2936] rounded-3xl p-8 border border-gray-800">
-          <h1 className="text-2xl font-bold text-white mb-4">Faça seu login</h1>
+          <h1 className="text-2xl font-bold text-white mb-4">123Faça seu login</h1>
           {erroLogin && <div className="mb-4 p-2 bg-red-900/40 text-red-200 text-xs rounded">{erroLogin}</div>}
           <form onSubmit={lidarComLogin} className="space-y-4">
             <input
