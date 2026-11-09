@@ -3122,19 +3122,17 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            {podeEditar && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setModalNovaRevisao(true);
-                }}
-                className="bg-[#84cc16] hover:bg-[#72b412] text-black py-2.5 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-[#84cc16]/10 cursor-pointer"
-              >
-                <Plus size={16} />
-                <span>Nova Revisão (RPFO)</span>
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                console.log("Abrindo modal de nova revisão...");
+                setModalNovaRevisao(true);
+              }}
+              className="bg-[#84cc16] hover:bg-[#72b412] text-black py-2.5 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-[#84cc16]/10 cursor-pointer"
+            >
+              <Plus size={16} />
+              <span>Nova Revisão (RPFO)</span>
+            </button>
             <button
               onClick={fazerLogout}
               className="p-2 bg-[#16212e] hover:bg-red-950/40 border border-gray-700 rounded-xl text-gray-300 hover:text-red-400 transition cursor-pointer"
