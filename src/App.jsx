@@ -3293,7 +3293,7 @@ export default function App() {
               className="bg-[#84cc16] hover:bg-[#72b412] text-black py-2.5 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-[#84cc16]/10 cursor-pointer"
             >
               <Plus size={16} />
-              Nova Revisão (RPFO)
+              + Nova Revisão (RPFO)
             </button>
             <button
               onClick={fazerLogout}
