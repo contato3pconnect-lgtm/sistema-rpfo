@@ -3062,8 +3062,8 @@ export default function App() {
   }
 
   // 5. DASHBOARD PRINCIPAL DE REVISÕES
-    if (telaAtiva === 'revisoes') {
-    
+  
+  if (telaAtiva === 'revisoes') {
      const parseMoeda = (val) => {
       if (!val) return 0;
       const num = parseFloat(val.toString().replace(/\./g, '').replace(',', '.').replace(/[^\d.-]/g, ''));
