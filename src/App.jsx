@@ -972,21 +972,28 @@ export default function App() {
     setNovoDescricao('');
     setModalNovoEvento(false);
   };
-    const salvarEdicaoAcontecimento = (e) => {
-    e.preventDefault();
-    if (!eventoEmEdicao || !eventoEmEdicao.titulo?.trim()) return;
 
-    setEventos(prev => prev.map(ev => 
-      ev.id === eventoEmEdicao.id ? { ...eventoEmEdicao, dia: parseInt(eventoEmEdicao.dia, 10) } : ev
-    ));
-    setEventoEmEdicao(null);
-  };
+  const confirmarExclusaoRevisao = async () => {
+    if (!revisaoParaExcluir) return;
+    
+    const idParaExcluir = revisaoParaExcluir.id;
 
-  const confirmarExclusaoAcontecimento = () => {
-    if (!eventoParaExcluir) return;
-    setEventos(prev => prev.filter(ev => ev.id !== eventoParaExcluir.id));
-    if (eventoPopUp?.id === eventoParaExcluir.id) setEventoPopUp(null);
-    setEventoParaExcluir(null);
+    setListaRevisoes(prev => prev.filter(r => r.id !== idParaExcluir));
+    setRpfosSelecionadasDashIds(prev => prev.filter(id => id !== idParaExcluir));
+    setCardsExpandidosIds(prev => prev.filter(id => id !== idParaExcluir));
+    
+    if (idRpfoEmEspecificacao === idParaExcluir) {
+      setIdRpfoEmEspecificacao(null);
+      setTelaAtiva('revisoes');
+    }
+
+    try {
+      await deleteDoc(doc(db, "revisoes_rpfo", String(idParaExcluir)));
+    } catch (err) {
+      console.error("Erro ao excluir RPFO do Firebase:", err);
+    }
+
+    setRevisaoParaExcluir(null);
   };
 
   const confirmarExclusaoRef = () => {
