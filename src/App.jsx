@@ -734,6 +734,26 @@ export default function App() {
       const novas = [...rev.etapas];
       const itemMovido = novas[etapaIndex];
       novas.splice(etapaIndex, 1);
+    if (!eventoParaExcluir) return;
+    
+    const idParaExcluir = eventoParaExcluir.id;
+
+    // 1. Remove da lista local imediatamente na tela
+    const novosEventos = eventos.filter(ev => ev.id !== idParaExcluir);
+    setEventos(novosEventos);
+
+    // 2. Atualiza o navegador local para não resgatar o dado antigo
+    localStorage.setItem('app_eventos_calendario_oficial', JSON.stringify(novosEventos));
+
+    // 3. APAGA DEFINITIVAMENTE DO FIREBASE (Nuvem para todos os PCs)
+    try {
+      await deleteDoc(doc(db, "eventos_calendario", String(idParaExcluir)));
+    } catch (err) {
+      console.error("Erro ao excluir acontecimento do Firebase:", err);
+    }
+
+    setEventoParaExcluir(null);
+  };
       novas.splice(novoIndex, 0, itemMovido);
 
       return { ...rev, etapas: novas };
@@ -989,25 +1009,7 @@ export default function App() {
       ]
     };
 
-    const novaLista = [...listaRevisoes, nova];
-    setListaRevisoes(novaLista);
-
-    try {
-      await setDoc(doc(db, "revisoes_rpfo", String(nova.id)), nova);
-    } catch (err) {
-      console.error("Erro ao salvar nova RPFO no Firebase:", err);
-    }
-
-    setFormNovaRpfo({
-      br: '', modalidade: 'Rodovia', statusGeral: 'A Iniciar', precoInicial: '', precoFinal: '', acumulado: '', percentual: '', contrato: '', processoSei: '', contratada: 'CLC', observacao: ''
-    });
-    setModalNovaRevisao(false);
-  };
-      br: '', modalidade: 'Rodovia', statusGeral: 'A Iniciar', precoInicial: '', precoFinal: '', acumulado: '', percentual: '', contrato: '', processoSei: '', contratada: 'CLC', observacao: ''
-    });
-    setModalNovaRevisao(false);
-  };
-
+    
   const salvarNovaRevisao = async (e) => {
     e.preventDefault();
     if (!formNovaRpfo.br.trim()) return;
@@ -1073,35 +1075,26 @@ export default function App() {
     setRevisaoEmEdicao(null);
   };
 
-  const salvarAcontecimento = async (e) => {
-    e.preventDefault();
-    if (!novoTitulo.trim()) return;
+  const confirmarExclusaoAcontecimento = async () => {
+    if (!eventoParaExcluir) return;
+    
+    const idParaExcluir = eventoParaExcluir.id;
 
-    const novoItem = {
-      id: Date.now(),
-      dia: diaSelecionado,
-      mes: mesAtualObj.mes,
-      ano: mesAtualObj.ano,
-      rpfoId: novoRpfo,
-      titulo: novoTitulo.trim(),
-      tipo: 'Acontecimento',
-      processoSei: novoProcessoSei.trim() || 'Não informado',
-      descricao: novoDescricao.trim() || 'Acontecimento registrado pela equipe.'
-    };
-
-    const novosEventos = [...eventos, novoItem];
+    // 1. Remove da tela imediatamente
+    const novosEventos = eventos.filter(ev => ev.id !== idParaExcluir);
     setEventos(novosEventos);
 
+    // 2. Limpa a memória local para o item não voltar fantasma
+    localStorage.removeItem('app_eventos_calendario_oficial');
+
+    // 3. APAGA DEFINITIVAMENTE DO FIREBASE (Nuvem para todos os PCs)
     try {
-      await setDoc(doc(db, "eventos_calendario", String(novoItem.id)), novoItem);
+      await deleteDoc(doc(db, "eventos_calendario", String(idParaExcluir)));
     } catch (err) {
-      console.error("Erro ao salvar acontecimento no Firebase:", err);
+      console.error("Erro ao excluir acontecimento do Firebase:", err);
     }
 
-    setNovoTitulo('');
-    setNovoProcessoSei('');
-    setNovoDescricao('');
-    setModalNovoEvento(false);
+    setEventoParaExcluir(null);
   };
 
   const confirmarExclusaoRevisao = async () => {
