@@ -895,6 +895,39 @@ export default function App() {
   };
 
   
+    const salvarNovaRevisao = async (e) => {
+    e.preventDefault();
+    if (!formNovaRpfo.br.trim()) return;
+
+    const pi = converterMoedaParaNumero(formNovaRpfo.precoInicial);
+    const pif = converterMoedaParaNumero(formNovaRpfo.precoFinal);
+    const dif = pif - pi;
+    const perc = pi > 0 ? (dif / pi) * 100 : 0;
+    const ehPositivo = dif >= 0;
+
+    const extrairUf = formNovaRpfo.br.includes('/') ? formNovaRpfo.br.split('/')[1].slice(0, 2).toUpperCase() : 'BR';
+
+    const nova = {
+      id: Date.now(),
+      ...formNovaRpfo,
+      uf: extrairUf,
+      tipoObra: 'RPFO - Adequação Orçamentária',
+      itensAdequados: ['Terraplenagem', 'Sinalização e Segurança'],
+      acumulado: (dif < 0 ? '- ' : '') + formatarNumeroParaMoeda(Math.abs(dif)),
+      percentual: (dif > 0 ? '+' : '') + perc.toFixed(2).replace('.', ',') + '%',
+      ehPositivo,
+      linkDrive: formNovaRpfo.linkDrive || '',
+      etapas: [
+        { nome: 'RPFO Concluída', data: 'Concluído', status: 'concluido' },
+        { nome: 'Protocolada', data: 'Em análise', status: 'andamento' },
+        { nome: 'Parecer Supervisora', data: 'Não iniciado', status: 'nao_iniciado' },
+        { nome: 'Parecer Fiscal', data: 'Não iniciado', status: 'nao_iniciado' },
+        { nome: 'Parecer COENGE', data: 'Não iniciado', status: 'nao_iniciado' },
+        { nome: 'Parecer SR.', data: 'Não iniciado', status: 'nao_iniciado' },
+        { nome: 'CGCONT', data: 'Não iniciado', status: 'nao_iniciado' },
+      ]
+    };
+
     const novaLista = [...listaRevisoes, nova];
     setListaRevisoes(novaLista);
 
@@ -905,6 +938,10 @@ export default function App() {
     }
 
     setFormNovaRpfo({
+      br: '', modalidade: 'Rodovia', statusGeral: 'A Iniciar', precoInicial: '', precoFinal: '', acumulado: '', percentual: '', contrato: '', processoSei: '', contratada: 'CLC', observacao: ''
+    });
+    setModalNovaRevisao(false);
+  };
       br: '', modalidade: 'Rodovia', statusGeral: 'A Iniciar', precoInicial: '', precoFinal: '', acumulado: '', percentual: '', contrato: '', processoSei: '', contratada: 'CLC', observacao: ''
     });
     setModalNovaRevisao(false);
