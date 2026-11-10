@@ -863,6 +863,22 @@ export default function App() {
     }
   };
 
+  
+    const novaLista = [...listaRevisoes, nova];
+    setListaRevisoes(novaLista);
+
+    try {
+      await setDoc(doc(db, "revisoes_rpfo", String(nova.id)), nova);
+    } catch (err) {
+      console.error("Erro ao salvar nova RPFO no Firebase:", err);
+    }
+
+    setFormNovaRpfo({
+      br: '', modalidade: 'Rodovia', statusGeral: 'A Iniciar', precoInicial: '', precoFinal: '', acumulado: '', percentual: '', contrato: '', processoSei: '', contratada: 'CLC', observacao: ''
+    });
+    setModalNovaRevisao(false);
+  };
+
   const salvarNovaRevisao = async (e) => {
     e.preventDefault();
     if (!formNovaRpfo.br.trim()) return;
@@ -957,8 +973,7 @@ export default function App() {
     setNovoDescricao('');
     setModalNovoEvento(false);
   };
-
-  const salvarEdicaoAcontecimento = (e) => {
+    const salvarEdicaoAcontecimento = (e) => {
     e.preventDefault();
     if (!eventoEmEdicao || !eventoEmEdicao.titulo?.trim()) return;
 
