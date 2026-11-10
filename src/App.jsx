@@ -26,7 +26,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Função auxiliar para salvar alterações na nuvem em tempo real
+// Função auxiliar correta para salvar alterações de RPFO na nuvem em tempo real
 const salvarRpfoNaNuvem = async (novaLista, setListaRevisoes) => {
   setListaRevisoes(novaLista);
   for (const rev of novaLista) {
@@ -863,7 +863,71 @@ export default function App() {
     }
   };
 
-  const salvarAcontecimento = (e) => {
+  const salvarNovaRevisao = async (e) => {
+    e.preventDefault();
+    if (!formNovaRpfo.br.trim()) return;
+
+    const pi = converterMoedaParaNumero(formNovaRpfo.precoInicial);
+    const pif = converterMoedaParaNumero(formNovaRpfo.precoFinal);
+    const dif = pif - pi;
+    const perc = pi > 0 ? (dif / pi) * 100 : 0;
+    const ehPositivo = dif >= 0;
+
+    const extrairUf = formNovaRpfo.br.includes('/') ? formNovaRpfo.br.split('/')[1].slice(0, 2).toUpperCase() : 'BR';
+
+    const nova = {
+      id: Date.now(),
+      ...formNovaRpfo,
+      uf: extrairUf,
+      tipoObra: 'RPFO - Adequação Orçamentária',
+      itensAdequados: ['Terraplenagem', 'Sinalização e Segurança'],
+      acumulado: (dif < 0 ? '- ' : '') + formatarNumeroParaMoeda(Math.abs(dif)),
+      percentual: (dif > 0 ? '+' : '') + perc.toFixed(2).replace('.', ',') + '%',
+      ehPositivo,
+      linkDrive: '',
+      etapas: [
+        { nome: 'RPFO Concluída', data: 'Concluído', status: 'concluido' },
+        { nome: 'Protocolada', data: 'Em análise', status: 'andamento' },
+        { nome: 'Parecer Supervisora', data: 'Não iniciado', status: 'nao_iniciado' },
+        { nome: 'Parecer Fiscal', data: 'Não iniciado', status: 'nao_iniciado' },
+        { nome: 'Parecer COENGE', data: 'Não iniciado', status: 'nao_iniciado' },
+        { nome: 'Parecer SR.', data: 'Não iniciado', status: 'nao_iniciado' },
+        { nome: 'CGCONT', data: 'Não iniciado', status: 'nao_iniciado' },
+      ]
+    };
+
+    const novaLista = [...listaRevisoes, nova];
+    setListaRevisoes(novaLista);
+
+    try {
+      await setDoc(doc(db, "revisoes_rpfo", String(nova.id)), nova);
+    } catch (err) {
+      console.error("Erro ao salvar nova RPFO no Firebase:", err);
+    }
+
+    setFormNovaRpfo({
+      br: '', modalidade: 'Rodovia', statusGeral: 'A Iniciar', precoInicial: '', precoFinal: '', acumulado: '', percentual: '', contrato: '', processoSei: '', contratada: 'CLC', observacao: ''
+    });
+    setModalNovaRevisao(false);
+  };
+
+  const salvarEdicaoRevisao = async (e) => {
+    e.preventDefault();
+    if (!revisaoEmEdicao.br.trim()) return;
+
+    const listaAtualizada = listaRevisoes.map(r => r.id === revisaoEmEdicao.id ? revisaoEmEdicao : r);
+    setListaRevisoes(listaAtualizada);
+
+    try {
+      await setDoc(doc(db, "revisoes_rpfo", String(revisaoEmEdicao.id)), revisaoEmEdicao);
+    } catch (err) {
+      console.error("Erro ao atualizar RPFO no Firebase:", err);
+    }
+
+    setRevisaoEmEdicao(null);
+  };
+
+  const salvarAcontecimento = async (e) => {
     e.preventDefault();
     if (!novoTitulo.trim()) return;
 
@@ -879,7 +943,15 @@ export default function App() {
       descricao: novoDescricao.trim() || 'Acontecimento registrado pela equipe.'
     };
 
-    setEventos([...eventos, novoItem]);
+    const novosEventos = [...eventos, novoItem];
+    setEventos(novosEventos);
+
+    try {
+      await setDoc(doc(db, "eventos_calendario", String(novoItem.id)), novoItem);
+    } catch (err) {
+      console.error("Erro ao salvar acontecimento no Firebase:", err);
+    }
+
     setNovoTitulo('');
     setNovoProcessoSei('');
     setNovoDescricao('');
@@ -947,14 +1019,7 @@ export default function App() {
     setItemRefEmEdicao(null);
   };
 
-  const salvarEdicaoRevisao = (e) => {
-    e.preventDefault();
-    if (!revisaoEmEdicao.br.trim()) return;
-
-    setListaRevisoes(prev => prev.map(r => r.id === revisaoEmEdicao.id ? revisaoEmEdicao : r));
-    setRevisaoEmEdicao(null);
-  };
-
+  
   const confirmarExclusaoRevisao = () => {
     if (!revisaoParaExcluir) return;
     setListaRevisoes(listaRevisoes.filter(r => r.id !== revisaoParaExcluir.id));
@@ -967,45 +1032,7 @@ export default function App() {
     setRevisaoParaExcluir(null);
   };
 
-  const salvarNovaRevisao = (e) => {
-    e.preventDefault();
-    if (!formNovaRpfo.br.trim()) return;
-
-    const pi = converterMoedaParaNumero(formNovaRpfo.precoInicial);
-    const pif = converterMoedaParaNumero(formNovaRpfo.precoFinal);
-    const dif = pif - pi;
-    const perc = pi > 0 ? (dif / pi) * 100 : 0;
-    const ehPositivo = dif >= 0;
-
-    const extrairUf = formNovaRpfo.br.includes('/') ? formNovaRpfo.br.split('/')[1].slice(0, 2).toUpperCase() : 'BR';
-
-    const nova = {
-      id: Date.now(),
-      ...formNovaRpfo,
-      uf: extrairUf,
-      tipoObra: 'RPFO - Adequação Orçamentária',
-      itensAdequados: ['Terraplenagem', 'Sinalização e Segurança'],
-      acumulado: (dif < 0 ? '- ' : '') + formatarNumeroParaMoeda(Math.abs(dif)),
-      percentual: (dif > 0 ? '+' : '') + perc.toFixed(2).replace('.', ',') + '%',
-      ehPositivo,
-      linkDrive: '',
-      etapas: [
-        { nome: 'RPFO Concluída', data: 'Concluído', status: 'concluido' },
-        { nome: 'Protocolada', data: 'Em análise', status: 'andamento' },
-        { nome: 'Parecer Supervisora', data: 'Não iniciado', status: 'nao_iniciado' },
-        { nome: 'Parecer Fiscal', data: 'Não iniciado', status: 'nao_iniciado' },
-        { nome: 'Parecer COENGE', data: 'Não iniciado', status: 'nao_iniciado' },
-        { nome: 'Parecer SR.', data: 'Não iniciado', status: 'nao_iniciado' },
-        { nome: 'CGCONT', data: 'Não iniciado', status: 'nao_iniciado' },
-      ]
-    };
-
-    setListaRevisoes([...listaRevisoes, nova]);
-    setFormNovaRpfo({
-      br: '', modalidade: 'Rodovia', statusGeral: 'A Iniciar', precoInicial: '', precoFinal: '', acumulado: '', percentual: '', contrato: '', processoSei: '', contratada: 'CLC', observacao: ''
-    });
-    setModalNovaRevisao(false);
-  };
+  
 
   const [itemIndexAdicionandoSub, setItemIndexAdicionandoSub] = useState(null);
   const [novoSubitemTexto, setNovoSubitemTexto] = useState('');
