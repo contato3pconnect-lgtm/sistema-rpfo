@@ -683,8 +683,8 @@ export default function App() {
     }));
   };
 
-  const alternarStatusEtapa = (revId, etapaIndex) => {
-    setListaRevisoes(prev => prev.map(rev => {
+  const alternarStatusEtapa = async (revId, etapaIndex) => {
+    const listaAtualizada = listaRevisoes.map(rev => {
       if (rev.id !== revId) return rev;
 
       const novasEtapas = [...rev.etapas];
@@ -706,7 +706,18 @@ export default function App() {
       }
 
       return { ...rev, etapas: novasEtapas };
-    }));
+    });
+
+    setListaRevisoes(listaAtualizada);
+
+    const obraModificada = listaAtualizada.find(r => r.id === revId);
+    if (obraModificada) {
+      try {
+        await setDoc(doc(db, "revisoes_rpfo", String(obraModificada.id)), obraModificada);
+      } catch (err) {
+        console.error("Erro ao atualizar etapa no Firebase:", err);
+      }
+    }
   };
 
   const lidarComMudancaDataEtapa = (revId, etapaIndex, valor) => {
@@ -727,11 +738,21 @@ export default function App() {
     }));
   };
 
-  const alterarStatusGeralRPFO = (revId, novoStatus) => {
-    setListaRevisoes(prev => prev.map(rev => {
+  const alterarStatusGeralRPFO = async (revId, novoStatus) => {
+    const listaAtualizada = listaRevisoes.map(rev => {
       if (rev.id !== revId) return rev;
       return { ...rev, statusGeral: novoStatus };
-    }));
+    });
+    setListaRevisoes(listaAtualizada);
+
+    const obraModificada = listaAtualizada.find(r => r.id === revId);
+    if (obraModificada) {
+      try {
+        await setDoc(doc(db, "revisoes_rpfo", String(obraModificada.id)), obraModificada);
+      } catch (err) {
+        console.error("Erro ao atualizar status no Firebase:", err);
+      }
+    }
   };
 
   const alternarTagCGU = (revId) => {
@@ -745,11 +766,22 @@ export default function App() {
     }));
   };
 
-  const atualizarLinkDrive = (revId, novoLink) => {
-    setListaRevisoes(prev => prev.map(rev => {
+  const atualizarLinkDrive = async (revId, novoLink) => {
+    const listaAtualizada = listaRevisoes.map(rev => {
       if (rev.id !== revId) return rev;
       return { ...rev, linkDrive: novoLink };
-    }));
+    });
+
+    setListaRevisoes(listaAtualizada);
+
+    const obraModificada = listaAtualizada.find(r => r.id === revId);
+    if (obraModificada) {
+      try {
+        await setDoc(doc(db, "revisoes_rpfo", String(obraModificada.id)), obraModificada);
+      } catch (err) {
+        console.error("Erro ao atualizar link do Drive no Firebase:", err);
+      }
+    }
   };
 
   const alternarExpansaoCard = (id) => {
