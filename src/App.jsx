@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { toJpeg } from 'html-to-image';
 import { 
-  
+  Mail, Lock, Eye, EyeOff, ArrowRight, Calendar as CalendarIcon, 
+  FileSpreadsheet, TrendingUp, LogOut, Check, Clock, Plus, 
+  ChevronLeft, ChevronRight, X, Tag, Edit3, Trash2, AlertTriangle, 
+  Palette, ChevronDown, ChevronUp, DollarSign, Activity, CheckSquare, Square,
+  BarChart3, Layers, MapPin, ArrowUpRight, ArrowDownRight,
+  Download, FileText, ShieldCheck, Users, UserCheck, UserX, Wifi
+} from 'lucide-react';
+
 // Importações e Configuração do Firebase
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot } from "firebase/firestore";
