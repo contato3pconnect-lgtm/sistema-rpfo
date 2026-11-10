@@ -36,6 +36,17 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+// Função auxiliar para salvar qualquer alteração de RPFO na nuvem em tempo real
+const salvarRpfoNaNuvem = async (novaLista) => {
+  salvarRpfoNaNuvem(novaLista);
+  for (const rev of novaLista) {
+    try {
+      await setDoc(doc(db, "revisoes_rpfo", String(rev.id)), rev);
+    } catch (err) {
+      console.error("Erro ao sincronizar com o Firebase:", err);
+    }
+  }
+};
 import { 
   Mail, Lock, Eye, EyeOff, ArrowRight, Calendar as CalendarIcon, 
   FileSpreadsheet, TrendingUp, LogOut, Check, Clock, Plus, 
