@@ -734,27 +734,7 @@ export default function App() {
       const novas = [...rev.etapas];
       const itemMovido = novas[etapaIndex];
       novas.splice(etapaIndex, 1);
-    if (!eventoParaExcluir) return;
-    
-    const idParaExcluir = eventoParaExcluir.id;
-
-    // 1. Remove da lista local imediatamente na tela
-    const novosEventos = eventos.filter(ev => ev.id !== idParaExcluir);
-    setEventos(novosEventos);
-
-    // 2. Atualiza o navegador local para não resgatar o dado antigo
-    localStorage.setItem('app_eventos_calendario_oficial', JSON.stringify(novosEventos));
-
-    // 3. APAGA DEFINITIVAMENTE DO FIREBASE (Nuvem para todos os PCs)
-    try {
-      await deleteDoc(doc(db, "eventos_calendario", String(idParaExcluir)));
-    } catch (err) {
-      console.error("Erro ao excluir acontecimento do Firebase:", err);
-    }
-
-    setEventoParaExcluir(null);
-  };
-      novas.splice(novoIndex, 0, itemMovido);
+          novas.splice(novoIndex, 0, itemMovido);
 
       return { ...rev, etapas: novas };
     });
@@ -2237,7 +2217,55 @@ export default function App() {
                   <X size={18} />
                 </button>
               </div>
+const salvarAcontecimento = async (e) => {
+    e.preventDefault();
+    if (!novoTitulo.trim()) return;
 
+    const novoItem = {
+      id: Date.now(),
+      dia: diaSelecionado,
+      mes: mesAtualObj.mes,
+      ano: mesAtualObj.ano,
+      rpfoId: novoRpfo,
+      titulo: novoTitulo.trim(),
+      tipo: 'Acontecimento',
+      processoSei: novoProcessoSei.trim() || 'Não informado',
+      descricao: novoDescricao.trim() || 'Acontecimento registrado pela equipe.'
+    };
+
+    const novosEventos = [...eventos, novoItem];
+    setEventos(novosEventos);
+    localStorage.setItem('app_eventos_calendario_oficial', JSON.stringify(novosEventos));
+
+    try {
+      await setDoc(doc(db, "eventos_calendario", String(novoItem.id)), novoItem);
+    } catch (err) {
+      console.error("Erro ao salvar acontecimento no Firebase:", err);
+    }
+
+    setNovoTitulo('');
+    setNovoProcessoSei('');
+    setNovoDescricao('');
+    setModalNovoEvento(false);
+  };
+
+  const confirmarExclusaoAcontecimento = async () => {
+    if (!eventoParaExcluir) return;
+    
+    const idParaExcluir = eventoParaExcluir.id;
+
+    const novosEventos = eventos.filter(ev => ev.id !== idParaExcluir);
+    setEventos(novosEventos);
+    localStorage.setItem('app_eventos_calendario_oficial', JSON.stringify(novosEventos));
+
+    try {
+      await deleteDoc(doc(db, "eventos_calendario", String(idParaExcluir)));
+    } catch (err) {
+      console.error("Erro ao excluir acontecimento do Firebase:", err);
+    }
+
+    setEventoParaExcluir(null);
+  };
               <form onSubmit={salvarAcontecimento} className="space-y-3.5">
                 <div>
                   <label className="block text-xs font-semibold text-gray-300 mb-1">Título do Evento</label>
