@@ -26,7 +26,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Função auxiliar correta para salvar alterações de RPFO na nuvem em tempo real
+// Função auxiliar para salvar alterações na nuvem em tempo real
 const salvarRpfoNaNuvem = async (novaLista, setListaRevisoes) => {
   setListaRevisoes(novaLista);
   for (const rev of novaLista) {
