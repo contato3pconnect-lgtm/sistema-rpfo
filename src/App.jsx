@@ -1,3 +1,30 @@
+import React, { useState, useEffect } from 'react';
+import { toJpeg } from 'html-to-image';
+import { 
+  Mail, Lock, Eye, EyeOff, ArrowRight, Calendar as CalendarIcon, 
+  FileSpreadsheet, TrendingUp, LogOut, Check, Clock, Plus, 
+  ChevronLeft, ChevronRight, X, Tag, Edit3, Trash2, AlertTriangle, 
+  Palette, ChevronDown, ChevronUp, DollarSign, Activity, CheckSquare, Square,
+  BarChart3, Layers, MapPin, ArrowUpRight, ArrowDownRight,
+  Download, FileText, ShieldCheck, Users, UserCheck, UserX, Wifi
+} from 'lucide-react';
+
+// Importações do Firebase
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCC-d1_xtJkfmD6zcvjlGLhZNFNFU4cjtk0",
+  authDomain: "rpfo-oliveira.firebaseapp.com",
+  projectId: "rpfo-oliveira",
+  storageBucket: "rpfo-oliveira.firebasestorage.app",
+  messagingSenderId: "339112009577",
+  appId: "1:339112009577:web:c5140fdda581eb1e6fa7f8",
+  measurementId: "G-VM2WZEYLTR"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 import React, { useState } from 'react';
 import { toJpeg } from 'html-to-image';
 import { 
