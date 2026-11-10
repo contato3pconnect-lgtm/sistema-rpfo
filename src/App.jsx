@@ -11,8 +11,7 @@ import {
 
 // Importações e Configuração do Firebase
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot } from "firebase/firestore";
-
+import { getFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot } from "firebase/firestore";
 const firebaseConfig = {
   apiKey: "AIzaSyCC-d1_xtJkfmD6zcvjlGLhZNFNFU4cjtk0",
   authDomain: "rpfo-oliveira.firebaseapp.com",
@@ -1035,15 +1034,28 @@ export default function App() {
   };
 
   
-  const confirmarExclusaoRevisao = () => {
+  const confirmarExclusaoRevisao = async () => {
     if (!revisaoParaExcluir) return;
-    setListaRevisoes(listaRevisoes.filter(r => r.id !== revisaoParaExcluir.id));
-    setRpfosSelecionadasDashIds(rpfosSelecionadasDashIds.filter(id => id !== revisaoParaExcluir.id));
-    setCardsExpandidosIds(cardsExpandidosIds.filter(id => id !== revisaoParaExcluir.id));
-    if (idRpfoEmEspecificacao === revisaoParaExcluir.id) {
+    
+    const idParaExcluir = revisaoParaExcluir.id;
+
+    // Atualiza a lista localmente
+    setListaRevisoes(prev => prev.filter(r => r.id !== idParaExcluir));
+    setRpfosSelecionadasDashIds(prev => prev.filter(id => id !== idParaExcluir));
+    setCardsExpandidosIds(prev => prev.filter(id => id !== idParaExcluir));
+    
+    if (idRpfoEmEspecificacao === idParaExcluir) {
       setIdRpfoEmEspecificacao(null);
       setTelaAtiva('revisoes');
     }
+
+    // Apaga o documento do Firebase para atualizar em tempo real para todos os PCs
+    try {
+      await deleteDoc(doc(db, "revisoes_rpfo", String(idParaExcluir)));
+    } catch (err) {
+      console.error("Erro ao excluir RPFO do Firebase:", err);
+    }
+
     setRevisaoParaExcluir(null);
   };
 
