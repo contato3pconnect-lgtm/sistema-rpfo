@@ -61,7 +61,7 @@ const EVENTOS_INICIAIS = [
     titulo: 'Parecer da supervisora aprovando',
     tipo: 'Acontecimento',
     processoSei: '26222153',
-    descricao: 'Constitui o Parecer Técnico Circunstanciado da Supervisora referente à 1ª RPFO. O documento valida tecnicamente os ajustes e correções de projeto (terraplenagem, drenagem, pavimentação, canteiro e remanejamentos), confirma o reflexo financeiro positivo líquido de R$ 51.519.876,14 (+16,40% sobre o valor inicial).'
+    descricao: 'Constitui o Parecer Técnico Circunstanciado da Supervisora referente à 1ª RPFO. O documento valida tecnicamente os ajustes e correções de projeto (terraplenagem, drenagem, pavimentação, canteiro e remanejamentos), confirma o reflexo financeiro positivo líquido de R$ 51.519.876,14 (+16,40% sobre o valor inicial), atesta a manutenção do equilíbrio econômico-financeiro (desconto original de 1,50%) e conclui que a revisão se encontra "em condições de aceitação" para encaminhamento à fiscalização do DNIT.'
   },
   {
     id: 102,
@@ -94,7 +94,7 @@ const EVENTOS_INICIAIS = [
     titulo: 'Despacho DNIT SEDE/DAQ para CGOB',
     tipo: 'Acontecimento',
     processoSei: '26346144',
-    descricao: 'Houve um despacho (26346144) do DNIT SEDE/DAQ para CGOB (22.10.2026) onde teve a aprovação jurídica parcial com veto a itens novos de escopo. Itens Vetados: Inclusão dos Produtos 07A, 07B e 07C (serviços vinculados à sinalização náutica).'
+    descricao: 'Houve um despacho (26346144) do DNIT SEDE/DAQ para CGOB (22.10.2026) onde teve a aprovação jurídica parcial com veto a itens novos de escopo. Itens Vetados: Inclusão dos Produtos 07A, 07B e 07C (serviços vinculados à sinalização náutica). Além disso foi pedido uma revisão da planilha orçamentária e da memória de cálculo, com a consequente reapuração do valor e do percentual do acréscimo contratual. Houve no mesmo dia outro despacho (26348483), agora do DNIT SEDE/DAQ/CGOB para COVIAS. Nela fala que a assessoria jurídica emitiu parecer com aprovação apenas parcial do pleito, impondo travas e exigindo correções técnicas e orçamentárias imediatas antes que o aditivo possa tramitar. Impossibilidade jurídica: inclusão dos Produtos 07A, 07B e 07C (serviços vinculados à sinalização náutica). A PFE entendeu que esses itens extrapolam ou alteram indevidamente o objeto/escopo originalmente licitado.'
   },
   {
     id: 105,
@@ -105,7 +105,7 @@ const EVENTOS_INICIAIS = [
     titulo: 'Aprovação da Superintendência Regional',
     tipo: 'Acontecimento',
     processoSei: '26360536',
-    descricao: 'Houve um despacho do Serviço de Construção Terrestre da Superintendência Regional do DNIT no Rio Grande do Norte (SRRN/COENGE - CAF - RN/SCT-RN) (26360536) manifesta concordância formal com a 1ª RPFO.'
+    descricao: 'Houve um despacho do Serviço de Construção Terrestre da Superintendência Regional do DNIT no Rio Grande do Norte (SRRN/COENGE - CAF - RN/SCT-RN) (26360536) manifesta concordância formal com a 1ª RPFO, remetendo o processo à Coordenação de Engenharia (COENGE) para emissão de parecer técnico conclusivo e continuidade dos trâmites de aprovação. Disciplinas Afetadas: Alterações de quantitativos e inserção de preços novos nas frentes de terraplenagem, drenagem e pavimentação, em virtude de divergências geotécnicas do subleito, distribuição de massas de terraplenagem e adequação estrutural identificadas em campo. Reflexo Financeiro: Valor Inicial Contratado: R$ 367.039.090,72. Novo Valor Global Proposto: R$ 438.798.255,14. Acréscimo Bruto: R$ 71.759.164,42 (+19,55% sobre o valor inicial).'
   },
   {
     id: 106,
@@ -127,7 +127,7 @@ const EVENTOS_INICIAIS = [
     titulo: 'Recusa da paralisação',
     tipo: 'Acontecimento',
     processoSei: '26351695',
-    descricao: 'O DNIT enviou uma minuta (23.10.2026) Ressaltando que o DNIT não autorizou a paralisação pelo período solicitado, tampouco anuiu à suspensão integral dos serviços nas condições pretendidas.'
+    descricao: 'O DNIT enviou uma minuta (23.10.2026) Ressaltando que o DNIT não autorizou a paralisação pelo período solicitado, tampouco anuiu à suspensão integral dos serviços nas condições pretendidas. Desse modo, o período em que a empresa permaneceu sem executar as atividades contratuais não implica reconhecimento ou aceitação da paralisação pela Administração, nem afasta as obrigações assumidas pela contratada. Determinando assim, a imediata retomada da execução dos serviços contando 5 dias a partir de hoje. (26351695)'
   },
   {
     id: 108,
@@ -138,7 +138,7 @@ const EVENTOS_INICIAIS = [
     titulo: 'Ratificação de Parecer da Fiscalização',
     tipo: 'Acontecimento',
     processoSei: '26359092',
-    descricao: '(26359092) A Superintendência Regional ratifica o parecer da fiscalização (UL de Cruz Alta/RS), destacando que as justificativas climáticas não sustentam a suspensão integral e determinando a retomada imediata das obras.'
+    descricao: '(26359092) A Superintendência Regional ratifica o parecer da fiscalização (UL de Cruz Alta/RS), destacando que: 1. As justificativas climáticas não sustentam a suspensão integral, pois existem frentes de serviço passíveis de execução que independem de aprovação prévia de RPFO; 2. A paralisação não foi autorizada pelo DNIT, o que já motivou abertura de Processo Administrativo de Apuração de Responsabilidade (PAAR); 3. Determina a retomada imediata das obras, fixando prazo de 5 (cinco) dias úteis para a construtora apresentar cronograma de remobilização, plano de retomada e indicação do engenheiro responsável/preposto, sob pena de instauração de processo de rescisão contratual.'
   },
   {
     id: 109,
@@ -149,7 +149,7 @@ const EVENTOS_INICIAIS = [
     titulo: 'Carta de justificativa',
     tipo: 'Acontecimento',
     processoSei: '26392719',
-    descricao: '(26392719) Emissor: Consórcio CLC/CONSERVA/FP. Prestação de esclarecimentos técnicos complementares e reencaminhamento de nova versão da 1ª Revisão de Projeto em Fase de Obras (RPFO) da rodovia BR-080/DF.'
+    descricao: '(26392719) Emissor: Consórcio CLC/CONSERVA/FP, assinada pelo representante legal e Engenheiro Civil Manfrini Alexandre Gondim. Destinatário: Diretoria de Infraestrutura Rodoviária do DNIT (DIR), aos cuidados do Coordenador de Obras de Construção Rodoviária, Eng.º Alan Max Silva Nunes. Assunto: Prestação de esclarecimentos técnicos complementares e reencaminhamento de nova versão da 1ª Revisão de Projeto em Fase de Obras (RPFO) da rodovia BR-080/DF (km 0,00 ao km 24,60; Contrato nº 00 00680/2023).'
   },
   {
     id: 110,
