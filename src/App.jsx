@@ -37,13 +37,7 @@ const salvarRpfoNaNuvem = async (novaLista, setListaRevisoes) => {
     }
   }
 };
-  Mail, Lock, Eye, EyeOff, ArrowRight, Calendar as CalendarIcon, 
-  FileSpreadsheet, TrendingUp, LogOut, Check, Clock, Plus, 
-  ChevronLeft, ChevronRight, X, Tag, Edit3, Trash2, AlertTriangle, 
-  Palette, ChevronDown, ChevronUp, DollarSign, Activity, CheckSquare, Square,
-  BarChart3, Layers, MapPin, ArrowUpRight, ArrowDownRight,
-  Download, FileText, ShieldCheck, Users, UserCheck, UserX, Wifi
-} from 'lucide-react';
+  
 
 const PALETA_CORES = [
   { id: 'purple', nome: 'Roxo', corBg: 'bg-purple-600', border: 'border-purple-500', hex: '#9333ea' },
