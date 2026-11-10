@@ -683,6 +683,64 @@ export default function App() {
     }));
   };
 
+  // Função auxiliar para enviar a obra modificada direto para o Firebase
+  const sincronizarObraModificadaNoFirebase = async (listaAtualizada, revId) => {
+    setListaRevisoes(listaAtualizada);
+    const obraModificada = listaAtualizada.find(r => r.id === revId);
+    if (obraModificada) {
+      try {
+        await setDoc(doc(db, "revisoes_rpfo", String(obraModificada.id)), obraModificada);
+      } catch (err) {
+        console.error("Erro ao sincronizar alteração de etapa no Firebase:", err);
+      }
+    }
+  };
+
+  const adicionarEtapaRPFO = (revId) => {
+    const novaLista = listaRevisoes.map(rev => {
+      if (rev.id !== revId) return rev;
+      const novas = [...rev.etapas, { nome: 'Nova Etapa', data: 'Não iniciado', status: 'nao_iniciado' }];
+      return { ...rev, etapas: novas };
+    });
+    sincronizarObraModificadaNoFirebase(novaLista, revId);
+  };
+
+  const removerEtapaRPFO = (revId, etapaIndex) => {
+    const novaLista = listaRevisoes.map(rev => {
+      if (rev.id !== revId) return rev;
+      if (rev.etapas.length <= 1) return rev;
+      const novas = rev.etapas.filter((_, idx) => idx !== etapaIndex);
+      return { ...rev, etapas: novas };
+    });
+    sincronizarObraModificadaNoFirebase(novaLista, revId);
+  };
+
+  const renomearEtapaRPFO = (revId, etapaIndex, novoNome) => {
+    const novaLista = listaRevisoes.map(rev => {
+      if (rev.id !== revId) return rev;
+      const novas = [...rev.etapas];
+      novas[etapaIndex] = { ...novasEtapas[etapaIndex], nome: novoNome };
+      return { ...rev, etapas: novas };
+    });
+    sincronizarObraModificadaNoFirebase(novaLista, revId);
+  };
+
+  const moverEtapaRPFO = (revId, etapaIndex, direcao) => {
+    const novaLista = listaRevisoes.map(rev => {
+      if (rev.id !== revId) return rev;
+      const novoIndex = direcao === 'esq' ? etapaIndex - 1 : etapaIndex + 1;
+      if (novoIndex < 0 || novoIndex >= rev.etapas.length) return rev;
+
+      const novas = [...rev.etapas];
+      const itemMovido = novas[etapaIndex];
+      novas.splice(etapaIndex, 1);
+      novas.splice(novoIndex, 0, itemMovido);
+
+      return { ...rev, etapas: novas };
+    });
+    sincronizarObraModificadaNoFirebase(novaLista, revId);
+  };
+
   const alternarStatusEtapa = async (revId, etapaIndex) => {
     const listaAtualizada = listaRevisoes.map(rev => {
       if (rev.id !== revId) return rev;
@@ -707,6 +765,9 @@ export default function App() {
 
       return { ...rev, etapas: novasEtapas };
     });
+
+    sincronizarObraModificadaNoFirebase(listaAtualizada, revId);
+  };
 
     setListaRevisoes(listaAtualizada);
 
@@ -1002,6 +1063,7 @@ export default function App() {
     const listaAtualizada = listaRevisoes.map(r => r.id === revisaoEmEdicao.id ? revisaoEmEdicao : r);
     setListaRevisoes(listaAtualizada);
 
+    // SALVA A ALTERAÇÃO DA OBRA NO FIREBASE EM TEMPO REAL
     try {
       await setDoc(doc(db, "revisoes_rpfo", String(revisaoEmEdicao.id)), revisaoEmEdicao);
     } catch (err) {
@@ -1047,6 +1109,7 @@ export default function App() {
     
     const idParaExcluir = revisaoParaExcluir.id;
 
+    // Atualiza o estado local
     setListaRevisoes(prev => prev.filter(r => r.id !== idParaExcluir));
     setRpfosSelecionadasDashIds(prev => prev.filter(id => id !== idParaExcluir));
     setCardsExpandidosIds(prev => prev.filter(id => id !== idParaExcluir));
@@ -1056,6 +1119,7 @@ export default function App() {
       setTelaAtiva('revisoes');
     }
 
+    // APAGA DIRETAMENTE NO FIREBASE PARA SUMIR NOS OUTROS PCS
     try {
       await deleteDoc(doc(db, "revisoes_rpfo", String(idParaExcluir)));
     } catch (err) {
