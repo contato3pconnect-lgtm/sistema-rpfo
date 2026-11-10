@@ -9,7 +9,18 @@ import {
   Download, FileText, ShieldCheck, Users, UserCheck, UserX, Wifi
 } from 'lucide-react';
 
-// Importações do Firebase
+import React, { useState, useEffect } from 'react';
+import { toJpeg } from 'html-to-image';
+import { 
+  Mail, Lock, Eye, EyeOff, ArrowRight, Calendar as CalendarIcon, 
+  FileSpreadsheet, TrendingUp, LogOut, Check, Clock, Plus, 
+  ChevronLeft, ChevronRight, X, Tag, Edit3, Trash2, AlertTriangle, 
+  Palette, ChevronDown, ChevronUp, DollarSign, Activity, CheckSquare, Square,
+  BarChart3, Layers, MapPin, ArrowUpRight, ArrowDownRight,
+  Download, FileText, ShieldCheck, Users, UserCheck, UserX, Wifi
+} from 'lucide-react';
+
+// Importações e Configuração do Firebase
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot } from "firebase/firestore";
 
@@ -25,8 +36,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-import React, { useState } from 'react';
-import { toJpeg } from 'html-to-image';
 import { 
   Mail, Lock, Eye, EyeOff, ArrowRight, Calendar as CalendarIcon, 
   FileSpreadsheet, TrendingUp, LogOut, Check, Clock, Plus, 
@@ -444,13 +453,24 @@ export default function App() {
   const [modoLoginAdmin, setModoLoginAdmin] = useState(false);
   const [chaveAdminMestre, setChaveAdminMestre] = useState('');
 
-  // Calendário com persistência em localStorage
-  const [indiceMes, setIndiceMes] = useState(0); // Inicia diretamente em Outubro 2026
+  // Sincronização em tempo real do Calendário com o Firebase Firestore
+  const [indiceMes, setIndiceMes] = useState(0);
   const [diaSelecionado, setDiaSelecionado] = useState(28);
-  const [eventos, setEventos] = useState(() => {
-    const salvo = localStorage.getItem('app_eventos_calendario_oficial');
-    return salvo ? JSON.parse(salvo) : EVENTOS_INICIAIS;
-  });
+  const [eventos, setEventos] = useState(EVENTOS_INICIAIS);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "eventos_calendario"), (snapshot) => {
+      const dadosNuvem = snapshot.docs.map(doc => ({ idDoc: doc.id, ...doc.data() }));
+      if (dadosNuvem.length > 0) {
+        setEventos(dadosNuvem);
+      } else {
+        EVENTOS_INICIAIS.forEach(async (ev) => {
+          await setDoc(doc(db, "eventos_calendario", String(ev.id)), ev);
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const [modalNovoEvento, setModalNovoEvento] = useState(false);
   const [eventoPopUp, setEventoPopUp] = useState(null);
@@ -475,11 +495,22 @@ export default function App() {
   const [eventoEmEdicao, setEventoEmEdicao] = useState(null);
   const [eventoParaExcluir, setEventoParaExcluir] = useState(null);
 
-  // Estados do Dashboard de Revisões com persistência
-  const [listaRevisoes, setListaRevisoes] = useState(() => {
-    const salvo = localStorage.getItem('app_lista_revisoes_oficial');
-    return salvo ? JSON.parse(salvo) : DADOS_REVISOES_INICIAIS;
-  });
+  // Sincronização em tempo real das Revisões com o Firebase Firestore
+  const [listaRevisoes, setListaRevisoes] = useState(DADOS_REVISOES_INICIAIS);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "revisoes_rpfo"), (snapshot) => {
+      const dadosNuvem = snapshot.docs.map(doc => ({ idDoc: doc.id, ...doc.data() }));
+      if (dadosNuvem.length > 0) {
+        setListaRevisoes(dadosNuvem);
+      } else {
+        DADOS_REVISOES_INICIAIS.forEach(async (rev) => {
+          await setDoc(doc(db, "revisoes_rpfo", String(rev.id)), rev);
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const [cardsExpandidosIds, setCardsExpandidosIds] = useState([]);
   
