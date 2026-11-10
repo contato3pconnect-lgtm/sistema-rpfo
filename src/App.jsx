@@ -9,17 +9,6 @@ import {
   Download, FileText, ShieldCheck, Users, UserCheck, UserX, Wifi
 } from 'lucide-react';
 
-import React, { useState, useEffect } from 'react';
-import { toJpeg } from 'html-to-image';
-import { 
-  Mail, Lock, Eye, EyeOff, ArrowRight, Calendar as CalendarIcon, 
-  FileSpreadsheet, TrendingUp, LogOut, Check, Clock, Plus, 
-  ChevronLeft, ChevronRight, X, Tag, Edit3, Trash2, AlertTriangle, 
-  Palette, ChevronDown, ChevronUp, DollarSign, Activity, CheckSquare, Square,
-  BarChart3, Layers, MapPin, ArrowUpRight, ArrowDownRight,
-  Download, FileText, ShieldCheck, Users, UserCheck, UserX, Wifi
-} from 'lucide-react';
-
 // Importações e Configuração do Firebase
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot } from "firebase/firestore";
@@ -36,9 +25,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-// Função auxiliar para salvar qualquer alteração de RPFO na nuvem em tempo real
-const salvarRpfoNaNuvem = async (novaLista) => {
-  salvarRpfoNaNuvem(novaLista);
+
+// Função auxiliar correta para salvar alterações de RPFO na nuvem em tempo real
+const salvarRpfoNaNuvem = async (novaLista, setListaRevisoes) => {
+  setListaRevisoes(novaLista);
   for (const rev of novaLista) {
     try {
       await setDoc(doc(db, "revisoes_rpfo", String(rev.id)), rev);
@@ -47,7 +37,6 @@ const salvarRpfoNaNuvem = async (novaLista) => {
     }
   }
 };
-import { 
   Mail, Lock, Eye, EyeOff, ArrowRight, Calendar as CalendarIcon, 
   FileSpreadsheet, TrendingUp, LogOut, Check, Clock, Plus, 
   ChevronLeft, ChevronRight, X, Tag, Edit3, Trash2, AlertTriangle, 
